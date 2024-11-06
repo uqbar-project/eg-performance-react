@@ -1,0 +1,55 @@
+.page {
+  width: calc(100vw - 2rem);
+  margin: 1rem;
+}
+
+.form {
+  margin: 1rem 0;
+}
+
+.form > button {
+  margin-left: 1rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: 5fr 2fr 1fr 1fr;
+}
+
+.header {
+  background-color: cadetblue;
+  color: white;
+  height: 1.75rem;
+  padding: 0.5rem;
+}
+
+input {
+  height: 1.25rem;
+  padding: 0.5rem;
+  width: 25rem;
+}
+
+span {
+  margin: auto 0.5rem;
+}
+
+.primary {
+  background-color: burlywood;
+}
+
+.secondary {
+  background-color: cornflowerblue;
+  color: white;
+}
+
+.selected {
+  background-color: dodgerblue;
+  color: white;
+  padding: 1rem;
+  font-size: larger;
+}
