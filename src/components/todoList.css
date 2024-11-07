@@ -47,12 +47,12 @@ span {
   margin: auto 0.5rem;
 }
 
-button.primary {
+div button.primary, span button.primary {
   background-color: burlywood;
   width: auto;
 }
 
-button.secondary {
+span button.secondary {
   background-color: cornflowerblue;
   color: white;
 }

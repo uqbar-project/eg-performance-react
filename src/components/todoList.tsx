@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { TodoItem } from '../domain/todoItem'
-import './todoList.css'
 import { NavLink } from 'react-router-dom'
+import './todoList.css'
 
 const priority = () => Math.trunc(Math.random() * 5)
 
