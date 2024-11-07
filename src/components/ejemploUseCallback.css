@@ -1,0 +1,28 @@
+.main {
+  width: 100vw;
+  height: 100vw;
+  background-color: bisque;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: baseline;
+  padding: 2rem 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.primary {
+  color: white;
+  background-color: brown;
+  width: 20vw;
+}
+
+ul {
+  align-self: flex-start;
+  margin: 0 10rem;
+}

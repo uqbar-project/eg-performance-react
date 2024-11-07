@@ -1,7 +1,7 @@
-// import { useState } from 'react'
 import { useEffect, useState } from 'react'
 import { TodoItem } from '../domain/todoItem'
 import './todoList.css'
+import { NavLink } from 'react-router-dom'
 
 const priority = () => Math.trunc(Math.random() * 5)
 
@@ -11,13 +11,20 @@ export const TodoList = () => {
   console.info('renderizando master')
   const [todoList, setTodoList] = useState<TodoItem[]>(baseTodoList)
   const [description, setDescription] = useState('')
-  // const length = 100
   const [length, setLength] = useState(0)
 
   useEffect(() => {
-    // let i = 0
-    // while (i < 2000000000) i++
+    let i = 0
+    while (i < 2000000000) i++
     setLength(todoList.length)
+
+    // otra opción
+    // fetch('https://medium.com/@cybersphere/fetch-api-the-ultimate-guide-to-cors-and-no-cors-cbcef88d371e', {
+    //   mode: 'no-cors' 
+    // }).then(() => {
+    //   setLength(todoList.length)
+    // })
+
   }, [todoList])
 
   const addTodoItem = () => {
@@ -39,7 +46,15 @@ export const TodoList = () => {
     setTodoList(newList)
   }
 
-  return <div className="page">
+  return <>
+    <div className='menu'>
+      <NavLink to='/callback'
+          className={({ isActive, isPending }) =>
+          isPending ? 'pending' : isActive ? 'active' : ''}>Docentes (useCallback)
+      </NavLink>
+    </div>
+
+    <div className="page">
       <span>{length} elementos</span>
       <div className="form">
       <input type="text" value={description} onChange={(event) => setDescription(event.target.value)}></input>
@@ -57,6 +72,8 @@ export const TodoList = () => {
       }
     </div>
   </div>
+
+  </>
 }
 /* qué pasa si pongo key={1} */
 /* qué pasa si pongo key={index} */

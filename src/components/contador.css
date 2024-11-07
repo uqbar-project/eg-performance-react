@@ -1,0 +1,21 @@
+* {
+  font-family: "Mona Sans", sans-serif;
+  font-optical-sizing: auto;
+}
+
+.main {
+  height: auto;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+span.contador {
+  height: auto;
+  font-size: larger;
+}
+
+button.primary {
+  background-color: brown;
+}
