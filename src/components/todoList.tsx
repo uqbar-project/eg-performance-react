@@ -93,8 +93,8 @@ export const TodoItemRow = ({ todoItem, changeDescription, deleteItem }: TodoIte
     <div className="table">
       <span data-testid="fecha" className={selected ? 'selected' : 'normal'}><input type="text" value={todoItem.description} onChange={(event) => changeDescription(todoItem, event.target.value)}></input></span>
       <span>{todoItem.priority}</span>
-      <span><button className="primary" onClick={() => { setSelected(!selected) }}>o</button></span>
-      <span><button className="secondary" onClick={() => deleteItem(todoItem)}>x</button></span>
+      <span><button className="primary" onClick={() => { setSelected(!selected) }}>☑️</button></span>
+      <span><button className="secondary" onClick={() => deleteItem(todoItem)}>❌</button></span>
     </div>
     <hr />
   </div>

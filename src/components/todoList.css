@@ -28,13 +28,15 @@
 .table {
   display: grid;
   grid-template-columns: 5fr 2fr 1fr 1fr;
+  gap: 0.5rem;
 }
 
 .header {
-  background-color: cadetblue;
-  color: white;
+  background-color: #fcd0cf;
+  color: black;
   height: 1.75rem;
   padding: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 input {
@@ -48,18 +50,18 @@ span {
 }
 
 div button.primary, span button.primary {
-  background-color: burlywood;
+  background-color: #cfbdbf;
+  color: black;
   width: auto;
 }
 
 span button.secondary {
-  background-color: cornflowerblue;
-  color: white;
+  background-color: #f1dbda;
+  color: black;
 }
 
 .selected {
-  background-color: dodgerblue;
-  color: white;
-  padding: 1rem;
+  background-color: #a2a9af;
+  padding: 0.5rem;
   font-size: larger;
 }

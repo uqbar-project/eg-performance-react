@@ -19,7 +19,7 @@ const Search = memo(({ onChange }: SearchPayload) => {
   )
 })
 
-const allDocentes = ['Juli', 'Juan', 'Fer', 'Nico', 'Guille', 'Jorgito']
+const allDocentes = ['Juli', 'Juan', 'Fer', 'Nico', 'Viotti', 'Lucas', 'Jorgito']
 
 const shuffle = (list: string[]): string[] => {
   if (list.length === 1) {
@@ -27,7 +27,7 @@ const shuffle = (list: string[]): string[] => {
   }
   const rand = Math.floor(Math.random() * list.length)
   return [list[rand], ...shuffle(list.filter((_, i) => i != rand))]
-};
+}
 
 export const DemoCallback = () => {
   const [docentes, setDocentes] = useState<string[]>(allDocentes)
@@ -41,21 +41,21 @@ export const DemoCallback = () => {
     <>
       <div className='menu'>
         <NavLink to='/'
-            className={({ isActive, isPending }) =>
+          className={({ isActive, isPending }) =>
             isPending ? 'pending' : isActive ? 'active' : ''}>Lista de pendientes (keys)
         </NavLink>
       </div>
       <div className='main'>
-      <div className='row'>
-        <button className='primary' onClick={() => setDocentes(shuffle(docentes))}>Shuffle</button>
-        <Search onChange={handleSearch}/>
+        <div className='row'>
+          <button className='primary' onClick={() => setDocentes(shuffle(docentes))}>Shuffle</button>
+          <Search onChange={handleSearch} />
+        </div>
+        <ul>
+          {docentes.map((docente: string) => (
+            <li key={docente}>{docente}</li>
+          ))}
+        </ul>
       </div>
-      <ul>
-        {docentes.map((docente: string) => (
-          <li key={docente}>{docente}</li>
-        ))}
-      </ul>
-    </div>
     </>
   )
 }
