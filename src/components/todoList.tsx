@@ -14,16 +14,16 @@ export const TodoList = () => {
   const [length, setLength] = useState(0)
 
   useEffect(() => {
-    let i = 0
-    while (i < 2000000000) i++
-    setLength(todoList.length)
+    // let i = 0
+    // while (i < 2000000000) i++
+    // setLength(todoList.length)
 
     // otra opción
-    // fetch('https://medium.com/@cybersphere/fetch-api-the-ultimate-guide-to-cors-and-no-cors-cbcef88d371e', {
-    //   mode: 'no-cors' 
-    // }).then(() => {
-    //   setLength(todoList.length)
-    // })
+    // fetch('https://httpbin.org/delay/5')
+    //   .then(response => response.json())
+    //   .then(_data => {
+    //     setLength(todoList.length)
+    //   })
 
   }, [todoList])
 
@@ -66,8 +66,8 @@ export const TodoList = () => {
         <span>Prioridad</span>
         <span></span>
       </div>
-      {todoList.map((todoItem: TodoItem) => (
-        <TodoItemRow key={todoItem.id} todoItem={todoItem} changeDescription={changeDescription} deleteItem={deleteItem}/>
+      {todoList.map((todoItem: TodoItem, index: number) => (
+        <TodoItemRow key={index} todoItem={todoItem} changeDescription={changeDescription} deleteItem={deleteItem}/>
       ))
       }
     </div>
@@ -77,7 +77,7 @@ export const TodoList = () => {
 }
 /* qué pasa si pongo key={1} */
 /* qué pasa si pongo key={index} */
-
+/* se arregla cuando uso key ={todoItem.id} */
 
 type TodoItemRowPayload = {
   todoItem: TodoItem,
@@ -93,8 +93,8 @@ export const TodoItemRow = ({ todoItem, changeDescription, deleteItem }: TodoIte
     <div className="table">
       <span data-testid="fecha" className={selected ? 'selected' : 'normal'}><input type="text" value={todoItem.description} onChange={(event) => changeDescription(todoItem, event.target.value)}></input></span>
       <span>{todoItem.priority}</span>
-      <span><button className="primary" onClick={() => { setSelected(!selected) }}>☑️</button></span>
-      <span><button className="secondary" onClick={() => deleteItem(todoItem)}>❌</button></span>
+      <span><button className="primary" title="Seleccionar" onClick={() => { setSelected(!selected) }}>☑️</button></span>
+      <span><button className="secondary" title="Eliminar" onClick={() => deleteItem(todoItem)}>❌</button></span>
     </div>
     <hr />
   </div>

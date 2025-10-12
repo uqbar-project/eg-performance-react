@@ -24,7 +24,7 @@ Las variantes que tenemos son:
 
 Con las dos primeras variantes vemos que React conserva el estado en base al índice. Como consecuencia, si nosotros seleccionamos los elementos que están en la posición 2 y la 4 respectivamente, y eliminamos un elemento, el estado seleccionado pasa a los elementos que originalmente estaban en las posiciones 3 y 5, pero que ahora al tener un elemento menos son los que pasan a estar en las posiciones 2 y 4:
 
-![confusión en el estado de los elementos hijos](./videos/stateDeLosHijosSeConfunde.gif)
+![confusión en el estado de los elementos hijos](./videos/usandoIndexSeConfundeHijos.gif)
 
 Esta confusión se resuelve cuando utilizamos la variante que utiliza el id de la tarea como key.
 
@@ -71,20 +71,17 @@ Ok podrán decir, ésto ocurre porque estás bloqueando el event loop de la UI. 
 
 ```ts
   useEffect(() => {
-    fetch('https://medium.com/@cybersphere/fetch-api-the-ultimate-guide-to-cors-and-no-cors-cbcef88d371e', {
-      mode: 'no-cors' 
-    }).then(() => {
-      setLength(todoList.length)
-    })
+    fetch('https://httpbin.org/delay/5')
+      .then(response => response.json())
+      .then(_data => {
+        setLength(todoList.length)
+      })
   }, [todoList])
 ```
 
-Como resultado pasan varias cosas:
+Como resultado la cantidad de elementos tarda en reflejarse. Esto es esperable, y si la operación de fetch trae información que produce un efecto y por ende un nuevo render del componente, tendré que ver la forma de comunicarlo al usuario: una animación, un pequeño spinner en el div que muestra la cantidad, etc.
 
-- lo obvio es que la cantidad de elementos tarda en reflejarse. Esto es esperable, y si la operación de fetch trae información que produce un efecto y por ende un nuevo render del componente, tendré que ver la forma de comunicarlo al usuario: una animación, un pequeño spinner en el div que muestra la cantidad, etc.
-- lo segundo es que se disparan varias llamadas de fetch. Esto no está bueno, posiblemente nos esté faltando una función que demore la llamada y haga [_debounce_](https://www.freecodecamp.org/news/javascript-debounce-example/). Te dejamos el artículo para que lo investigues.
-
-![useEffect con fetch](./videos/estadoTardaEnReflejarse.gif)
+![useEffect con fetch](./videos/useEffectConRetardo.gif)
 
 ## Docentes: useCallback
 
