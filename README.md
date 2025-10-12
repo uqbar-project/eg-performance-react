@@ -1,5 +1,7 @@
 # Performance en React
 
+[![Build React App](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml/badge.svg)](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml)
+
 ## TODO List
 
 Este ejemplo permite mostrar
