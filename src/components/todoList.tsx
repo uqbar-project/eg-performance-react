@@ -14,9 +14,9 @@ export const TodoList = () => {
   const [length, setLength] = useState(0)
 
   useEffect(() => {
-    // let i = 0
-    // while (i < 2000000000) i++
-    // setLength(todoList.length)
+    let i = 0
+    while (i < 2000000000) i++
+    setLength(todoList.length)
 
     // otra opción
     // fetch('https://httpbin.org/delay/5')
