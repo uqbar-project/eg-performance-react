@@ -14,17 +14,17 @@ Para eso tenemos una lista de cosas pendientes o TODO list, donde
 
 - podemos agregar un elemento
 - o podemos editar la lista de tareas pendientes
-- también podemos seleccionar varias tareas pendientes, lo que provoca que se visualice de manera diferente dicha lista
+- también podemos seleccionar varias tareas pendientes, lo que provoca que se visualice de manera diferente dicho elemento en la lista
 
 ## Keys
 
 Las variantes que tenemos son:
 
 - que todos los componentes tengan como clave la constante 1
-- utilizar un índice de los elementos
+- utilizar el índice de los elementos en la lista
 - aprovechar que cada tarea pendiente tiene un identificador único y utilizarlo como key
 
-Con las dos primeras variantes vemos que React conserva el estado en base al índice. Como consecuencia, si nosotros seleccionamos los elementos que están en la posición 2 y la 4 respectivamente, y eliminamos un elemento, el estado seleccionado pasa a los elementos que originalmente estaban en las posiciones 3 y 5, pero que ahora al tener un elemento menos son los que pasan a estar en las posiciones 2 y 4:
+Con las dos primeras variantes vemos que React conserva la referencia por cosas que no se mantienen fijas para el mismo elemento. Como consecuencia, si nosotros seleccionamos los elementos que están en la posición 2 y la 4 respectivamente, y eliminamos un elemento, el estado seleccionado pasa a los elementos que originalmente estaban en las posiciones 3 y 5, pero que ahora al tener un elemento menos son los que pasan a estar en las posiciones 2 y 4:
 
 ![confusión en el estado de los elementos hijos](./videos/usandoIndexSeConfundeHijos.gif)
 
@@ -98,7 +98,7 @@ En el segundo ejemplo tenemos una página con la siguiente distribución:
 Un detalle interesante es que el input de búsqueda está en un componente aparte, porque queremos reutilizarlo en otro lugar:
 
 ```tsx
-const Search = memo(({ onChange}: SearchPayload) => {
+const Search = memo(({ onChange }: SearchPayload) => {
   console.info('Search renderizado')
 
   return (
@@ -145,13 +145,6 @@ Para no crear una función cada vez, vamos a utilizar el hook `useCallback` que 
 ```
 
 Como el filtro de la lista solo depende del valor que ingresamos, y está desacoplado del estado de mi componente raíz (porque lo pasamos como parámetro), el resultado es que solo necesitamos crear la función `handleSearch` una vez, y a partir de allí reutilizamos esa definición siempre:
-
-```ts
-  const handleSearch = useCallback((nombre: string) => {
-    const docentesFiltrados = allDocentes.filter((docente: string) => docente.includes(nombre))
-    setDocentes(docentesFiltrados)
-  }, [])
-```
 
 ![docentes con useCallback, no renderizo más](./videos/docentes_renderizoSearchUseCallback.gif)
 
@@ -212,7 +205,7 @@ Ok, podríamos pensar entonces en sacar esa dependencia:
   }, [])
 ```
 
-Lejos de arreglar el problema, introducimos uno nuevo: ahora la función solo incrementa el contador la primera vez:
+Lejos de arreglar el problema, generamos uno nuevo: ahora la función solo incrementa el contador la primera vez:
 
 ![se incrementa la función una sola vez](./videos/contador_incrementarUnaSolaVez.gif)
 
