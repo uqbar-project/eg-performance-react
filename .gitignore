@@ -27,4 +27,4 @@ dist-ssr
 .history
 
 # Coverage report
-coverage
+coverage/

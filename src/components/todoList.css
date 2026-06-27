@@ -49,7 +49,8 @@ span {
   margin: auto 0.5rem;
 }
 
-div button.primary, span button.primary {
+div button.primary,
+span button.primary {
   background-color: #cfbdbf;
   color: black;
   width: auto;
