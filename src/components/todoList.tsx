@@ -132,6 +132,7 @@ export const TodoItemRow = ({
           <button
             type="button"
             className="primary"
+            aria-label="Seleccionar"
             title="Seleccionar"
             onClick={() => {
               setSelected(!selected)
@@ -144,6 +145,7 @@ export const TodoItemRow = ({
           <button
             type="button"
             className="secondary"
+            aria-label="Eliminar"
             title="Eliminar"
             onClick={() => deleteItem(todoItem)}
           >

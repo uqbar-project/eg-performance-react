@@ -7,9 +7,10 @@ type ContadorPayload = {
 }
 
 const Contador = ({ contador, incrementar }: ContadorPayload) => {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: demo
   useEffect(() => {
     console.info('tengo una nueva función increment')
-  }, [])
+  }, [incrementar])
 
   return (
     <div className="main">

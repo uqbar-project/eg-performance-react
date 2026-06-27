@@ -251,13 +251,13 @@ El [React Compiler](https://react.dev/learn/react-compiler) (v1.0 estable desde 
 Para habilitarlo en este proyecto con Vite:
 
 ```bash
-pnpm add -D babel-plugin-react-compiler
+pnpm add -D @vitejs/plugin-react babel-plugin-react-compiler
 ```
 
 Y en `vite.config.ts`:
 
 ```ts
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [

@@ -31,7 +31,7 @@ const allDocentes = [
 ]
 
 const shuffle = (list: string[]): string[] => {
-  if (list.length === 1) {
+  if (list.length <= 1) {
     return list
   }
   const rand = Math.floor(Math.random() * list.length)
