@@ -13,41 +13,62 @@ const Search = memo(({ onChange }: SearchPayload) => {
 
   return (
     <input
-      type='text'
-      placeholder='Ingrese criterio de búsqueda'
-      onChange={(event) => onChange(event.target.value)} />
+      type="text"
+      placeholder="Ingrese criterio de búsqueda"
+      onChange={(event) => onChange(event.target.value)}
+    />
   )
 })
 
-const allDocentes = ['Juli', 'Juan', 'Fer', 'Nico', 'Viotti', 'Lucas', 'Jorgito']
+const allDocentes = [
+  'Juli',
+  'Juan',
+  'Fer',
+  'Nico',
+  'Viotti',
+  'Lucas',
+  'Jorgito',
+]
 
 const shuffle = (list: string[]): string[] => {
-  if (list.length === 1) {
+  if (list.length <= 1) {
     return list
   }
   const rand = Math.floor(Math.random() * list.length)
-  return [list[rand], ...shuffle(list.filter((_, i) => i != rand))]
+  return [list[rand], ...shuffle(list.filter((_, i) => i !== rand))]
 }
 
 export const DemoCallback = () => {
   const [docentes, setDocentes] = useState<string[]>(allDocentes)
 
   const handleSearch = useCallback((nombre: string) => {
-    const docentesFiltrados = allDocentes.filter((docente: string) => docente.includes(nombre))
+    const docentesFiltrados = allDocentes.filter((docente: string) =>
+      docente.includes(nombre)
+    )
     setDocentes(docentesFiltrados)
   }, [])
 
   return (
     <>
-      <div className='menu'>
-        <NavLink to='/'
+      <div className="menu">
+        <NavLink
+          to="/"
           className={({ isActive, isPending }) =>
-            isPending ? 'pending' : isActive ? 'active' : ''}>Lista de pendientes (keys)
+            isPending ? 'pending' : isActive ? 'active' : ''
+          }
+        >
+          Lista de pendientes (keys)
         </NavLink>
       </div>
-      <div className='main'>
-        <div className='row'>
-          <button className='primary' onClick={() => setDocentes(shuffle(docentes))}>Shuffle</button>
+      <div className="main">
+        <div className="row">
+          <button
+            type="button"
+            className="primary"
+            onClick={() => setDocentes(shuffle(docentes))}
+          >
+            Shuffle
+          </button>
           <Search onChange={handleSearch} />
         </div>
         <ul>

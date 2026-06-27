@@ -225,6 +225,53 @@ Ahora sí, no generamos nuevas instancias de la función `increment` y el contad
 
 > No es una buena práctica utilizar `useCallback` hasta tanto no nos encontremos con un problema de performance: el código que se genera es menos legible, tenemos que ser precavidos para no generar funciones todo el tiempo y peor aún, puede ser que al cachear la función el estado no se vea reflejado y el usuario tenga una mala experiencia de usuario.
 
+## React Compiler (2026)
+
+El [React Compiler](https://react.dev/learn/react-compiler) (v1.0 estable desde octubre 2025, antes conocido como "React Forget") automatiza la memoización en tiempo de compilación. Analiza el código fuente y aplica automáticamente las optimizaciones equivalentes a `React.memo`, `useMemo` y `useCallback` sin necesidad de escribirlas manualmente.
+
+### ¿Qué cambia?
+
+| Antes (manual) | Con React Compiler |
+|---|---|
+| `const fn = useCallback(..., [])` | `const fn = () => {...}` — el compiler estabiliza la referencia |
+| `const val = useMemo(..., [deps])` | `const val = ...` — el compiler cachea valores derivados |
+| `export default memo(Componente)` | `export default function Componente` — el compiler decide cuándo saltar el re-render |
+
+### ¿Vuelve obsoleto este ejemplo?
+
+**No.** Entender `useCallback`, `useMemo`, `memo` y el funcionamiento de las `key` sigue siendo fundamental porque:
+
+- El compilador no puede optimizar código que interactúa con librerías externas (Zustand, Redux, chart libs, map libs).
+- Las dependencias de `useEffect` siguen requiriendo valores estables.
+- Cuando tenés un bottleneck medido con el profiler, seguís necesitando `useMemo`/`useCallback` como escape hatch explícito.
+- El compilador tiene que poder analizar el código estáticamente; patrones muy dinámicos pueden quedar fuera de su alcance.
+
+### Activación (opcional)
+
+Para habilitarlo en este proyecto con Vite:
+
+```bash
+pnpm add -D @vitejs/plugin-react babel-plugin-react-compiler
+```
+
+Y en `vite.config.ts`:
+
+```ts
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler']],
+      },
+    }),
+  ],
+})
+```
+
+> El compilador no reemplaza la comprensión de los conceptos: seguís necesitando saber qué es una key inmutable, cómo funcionan los closures y por qué una referencia inestable puede causar re-renders innecesarios. Este ejemplo enseña exactamente eso.
+
 ## Material adicional
 
 - [useCallback](https://www.youtube.com/watch?v=duh3uKn0qnU)
