@@ -1,6 +1,5 @@
 import { memo, useCallback, useState } from 'react'
 import './ejemploUseCallback.css'
-import { NavLink } from 'react-router-dom'
 
 interface SearchPayload {
   onChange: (text: string) => void
@@ -13,8 +12,10 @@ const Search = memo(({ onChange }: SearchPayload) => {
 
   return (
     <input
+      className="callback-search"
       type="text"
       placeholder="Ingrese criterio de búsqueda"
+      aria-label="Ingrese criterio de búsqueda"
       onChange={(event) => onChange(event.target.value)}
     />
   )
@@ -49,34 +50,37 @@ export const DemoCallback = () => {
   }, [])
 
   return (
-    <>
-      <div className="menu">
-        <NavLink
-          to="/"
-          className={({ isActive, isPending }) =>
-            isPending ? 'pending' : isActive ? 'active' : ''
-          }
-        >
-          Lista de pendientes (keys)
-        </NavLink>
-      </div>
-      <div className="main">
-        <div className="row">
+    <div className="callback-page">
+      <section className="callback-card">
+        <header className="callback-header">
+          <h1 className="callback-title">Docentes</h1>
+          <span className="callback-count">
+            {docentes.length} {docentes.length === 1 ? 'docente' : 'docentes'}
+          </span>
+        </header>
+
+        <div className="callback-controls">
           <button
             type="button"
-            className="primary"
+            className="callback-shuffle"
             onClick={() => setDocentes(shuffle(docentes))}
           >
             Shuffle
           </button>
           <Search onChange={handleSearch} />
         </div>
-        <ul>
+
+        <ul className="callback-list">
+          {docentes.length === 0 && (
+            <li className="callback-empty">Sin resultados</li>
+          )}
           {docentes.map((docente: string) => (
-            <li key={docente}>{docente}</li>
+            <li key={docente} className="callback-item">
+              {docente}
+            </li>
           ))}
         </ul>
-      </div>
-    </>
+      </section>
+    </div>
   )
 }

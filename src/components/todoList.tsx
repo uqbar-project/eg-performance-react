@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import { TodoItem } from '../domain/todoItem'
 import './todoList.css'
 
@@ -8,6 +7,16 @@ const priority = () => Math.trunc(Math.random() * 5)
 const baseTodoList = Array.from(Array(100).keys()).map(
   (n) => new TodoItem(`a${n}`, priority())
 )
+
+const priorityLevel = (value: number) => {
+  if (value <= 1) {
+    return 'low'
+  }
+  if (value <= 3) {
+    return 'mid'
+  }
+  return 'high'
+}
 
 export const TodoList = () => {
   console.info('renderizando master')
@@ -54,36 +63,39 @@ export const TodoList = () => {
   }
 
   return (
-    <>
-      <div className="menu">
-        <NavLink
-          to="/callback"
-          className={({ isActive, isPending }) =>
-            isPending ? 'pending' : isActive ? 'active' : ''
-          }
-        >
-          Docentes (useCallback)
-        </NavLink>
-      </div>
+    <div className="todo-page">
+      <section className="todo-card">
+        <header className="todo-header">
+          <h1 className="todo-title">Lista de pendientes</h1>
+          <span className="todo-count">{length} elementos</span>
+        </header>
 
-      <div className="page">
-        <span>{length} elementos</span>
-        <div className="form">
+        <div className="todo-form">
           <input
+            className="todo-new-input"
             type="text"
             value={description}
+            placeholder="Descripción del pendiente"
+            aria-label="Descripción del pendiente"
             onChange={(event) => setDescription(event.target.value)}
-          ></input>
-          <button type="button" className="primary" onClick={addTodoItem}>
+          />
+          <button type="button" className="todo-add" onClick={addTodoItem}>
             Agregar
           </button>
         </div>
-        <div className="grid">
-          <div className="table header">
+
+        <div className="todo-table">
+          <div className="todo-row todo-head">
             <span>Descripción</span>
             <span>Prioridad</span>
-            <span></span>
+            <span>Hecho</span>
+            <span />
           </div>
+
+          {todoList.length === 0 && (
+            <p className="todo-empty">No hay pendientes. Agregá uno arriba.</p>
+          )}
+
           {todoList.map((todoItem: TodoItem) => (
             <TodoItemRow
               key={todoItem.id}
@@ -93,8 +105,8 @@ export const TodoList = () => {
             />
           ))}
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   )
 }
 /* qué pasa si pongo key={1} */
@@ -116,44 +128,53 @@ export const TodoItemRow = ({
   const [selected, setSelected] = useState(false)
 
   return (
-    <div>
-      <div className="table">
-        <span data-testid="fecha" className={selected ? 'selected' : 'normal'}>
-          <input
-            type="text"
-            value={todoItem.description}
-            onChange={(event) =>
-              changeDescription(todoItem, event.target.value)
-            }
-          ></input>
+    <div className={`todo-row ${selected ? 'is-selected' : ''}`}>
+      <span
+        data-testid="fecha"
+        className={selected ? 'todo-desc is-selected' : 'todo-desc'}
+      >
+        <input
+          className="todo-cell-input"
+          type="text"
+          value={todoItem.description}
+          aria-label={`Descripción del pendiente ${todoItem.id}`}
+          onChange={(event) => changeDescription(todoItem, event.target.value)}
+        />
+      </span>
+
+      <span className="todo-priority-cell">
+        <span
+          className={`todo-priority is-${priorityLevel(todoItem.priority)}`}
+        >
+          {todoItem.priority}
         </span>
-        <span>{todoItem.priority}</span>
-        <span>
-          <button
-            type="button"
-            className="primary"
-            aria-label="Seleccionar"
-            title="Seleccionar"
-            onClick={() => {
-              setSelected(!selected)
-            }}
-          >
-            ☑️
-          </button>
-        </span>
-        <span>
-          <button
-            type="button"
-            className="secondary"
-            aria-label="Eliminar"
-            title="Eliminar"
-            onClick={() => deleteItem(todoItem)}
-          >
-            ❌
-          </button>
-        </span>
-      </div>
-      <hr />
+      </span>
+
+      <span className="todo-actions">
+        <button
+          type="button"
+          className="todo-check"
+          aria-label="Seleccionar"
+          title="Seleccionar"
+          onClick={() => {
+            setSelected(!selected)
+          }}
+        >
+          ✓
+        </button>
+      </span>
+
+      <span className="todo-actions">
+        <button
+          type="button"
+          className="todo-delete"
+          aria-label="Eliminar"
+          title="Eliminar"
+          onClick={() => deleteItem(todoItem)}
+        >
+          ✕
+        </button>
+      </span>
     </div>
   )
 }

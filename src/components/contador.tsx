@@ -13,11 +13,18 @@ const Contador = ({ contador, incrementar }: ContadorPayload) => {
   }, [incrementar])
 
   return (
-    <div className="main">
-      <span className="contador">{contador}</span>
-      <button type="button" className="primary" onClick={incrementar}>
-        +
-      </button>
+    <div className="contador-page">
+      <div className="contador-box">
+        <span className="contador">{contador}</span>
+        <button
+          type="button"
+          className="contador-boton"
+          onClick={incrementar}
+          aria-label="Incrementar"
+        >
+          +
+        </button>
+      </div>
     </div>
   )
 }

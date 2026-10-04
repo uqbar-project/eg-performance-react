@@ -1,0 +1,111 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar {
+  --topbar-bg: #242424;
+  --topbar-border: rgba(255, 255, 255, 0.14);
+  --topbar-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --accent: #9aa3ff;
+  --accent-soft: rgba(154, 163, 255, 0.16);
+  --accent-strong: rgba(154, 163, 255, 0.28);
+  --link: #c8c8c8;
+  --link-hover: #ffffff;
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--topbar-bg);
+  border-bottom: 1px solid var(--topbar-border);
+  box-shadow: var(--topbar-shadow);
+}
+
+.topbar-brand {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.topbar-link {
+  position: relative;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  color: var(--link);
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.topbar-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0.15rem;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background-color: var(--accent);
+  transform: translateX(-50%);
+  transition: width 0.2s ease;
+}
+
+.topbar-link:hover {
+  color: var(--link-hover);
+  background-color: var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+.topbar-link:hover::after {
+  width: 55%;
+}
+
+.topbar-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.topbar-link.is-active {
+  color: var(--link-hover);
+  background-color: var(--accent-strong);
+}
+
+.topbar-link.is-active::after {
+  width: 55%;
+}
+
+@media (prefers-color-scheme: light) {
+  .topbar {
+    --topbar-bg: #ffffff;
+    --topbar-border: rgba(0, 0, 0, 0.12);
+    --topbar-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    --accent: #4f46e5;
+    --accent-soft: rgba(79, 70, 229, 0.12);
+    --accent-strong: rgba(79, 70, 229, 0.2);
+    --link: #4b5563;
+    --link-hover: #111827;
+  }
+}
