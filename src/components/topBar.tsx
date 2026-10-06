@@ -2,9 +2,11 @@ import { NavLink } from 'react-router-dom'
 import './topBar.css'
 
 const sections = [
-  { to: '/', label: 'Todo List' },
-  { to: '/callback', label: 'useCallback' },
-  { to: '/contador', label: 'Contador' },
+  { to: '/', label: 'TodoList' },
+  { to: '/docentes', label: 'Docentes - memo' },
+  { to: '/contador', label: 'Contador - useCallback' },
+  { to: '/lista', label: 'Lista - useMemo' },
+  { to: '/props', label: 'Props - memo' },
 ]
 
 export const TopBar = () => {

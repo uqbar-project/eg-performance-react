@@ -1,13 +1,26 @@
+// biome-ignore lint/suspicious/noTsIgnore: el ts-ignore es intencional, expect-error rompería el build al descomentar en clase
+// @ts-ignore: memo y useCallback se usan al descomentar la solución manual en clase
+// biome-ignore lint/correctness/noUnusedImports: idem anterior
 import { memo, useCallback, useState } from 'react'
-import './ejemploUseCallback.css'
+import { CompilerBadge } from './compilerBadge'
+import './docentes.css'
+import { RenderBadge } from './renderBadge'
 
 interface SearchPayload {
   onChange: (text: string) => void
 }
 
-// memo wrappea el componente para chequear que el onChange
-// haya cambiado, y así definimos si se renderiza de nuevo
-const Search = memo(({ onChange }: SearchPayload) => {
+// `memo` y `useCallback` trabajan en par: `memo` compara las props del hijo
+// con `===` y saltea el re-render si son iguales, pero eso solo funciona si
+// `onChange` mantiene la misma referencia entre renders. Por eso `handleSearch`
+// debería cachearse con `useCallback`: sin esa referencia estable, `memo`
+// vería una función nueva cada vez y el hijo se re-renderizaría igual.
+// (Con el Compiler activado ambos sobran: él estabiliza la referencia solo.)
+//
+// EN CLASE: la solución manual está en las líneas marcadas MANUAL.
+// Comentá la línea ACTIVA y descomentá la MANUAL para activarla
+// (hace falta en modo sin-compiler; es redundante con Compiler ON).
+const SearchBase = ({ onChange }: SearchPayload) => {
   console.info('Search renderizado')
 
   return (
@@ -19,7 +32,10 @@ const Search = memo(({ onChange }: SearchPayload) => {
       onChange={(event) => onChange(event.target.value)}
     />
   )
-})
+}
+
+const Search = SearchBase
+// MANUAL: const Search = memo(SearchBase)
 
 const allDocentes = [
   'Juli',
@@ -39,24 +55,29 @@ const shuffle = (list: string[]): string[] => {
   return [list[rand], ...shuffle(list.filter((_, i) => i !== rand))]
 }
 
-export const DemoCallback = () => {
+export const Docentes = () => {
   const [docentes, setDocentes] = useState<string[]>(allDocentes)
 
-  const handleSearch = useCallback((nombre: string) => {
+  const handleSearchBase = (nombre: string) => {
     const docentesFiltrados = allDocentes.filter((docente: string) =>
       docente.includes(nombre)
     )
     setDocentes(docentesFiltrados)
-  }, [])
+  }
+
+  const handleSearch = handleSearchBase
+  // MANUAL: const handleSearch = useCallback(handleSearchBase, [])
 
   return (
     <div className="callback-page">
       <section className="callback-card">
         <header className="callback-header">
-          <h1 className="callback-title">Docentes</h1>
+          <h1 className="callback-title">Docentes - memo</h1>
           <span className="callback-count">
             {docentes.length} {docentes.length === 1 ? 'docente' : 'docentes'}
           </span>
+          <RenderBadge label="Padre" />
+          <CompilerBadge />
         </header>
 
         <div className="callback-controls">

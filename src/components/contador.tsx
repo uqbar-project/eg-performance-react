@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { CompilerBadge } from './compilerBadge'
 import './contador.css'
+import { RenderBadge } from './renderBadge'
 
 type ContadorPayload = {
   contador: number
@@ -13,18 +15,16 @@ const Contador = ({ contador, incrementar }: ContadorPayload) => {
   }, [incrementar])
 
   return (
-    <div className="contador-page">
-      <div className="contador-box">
-        <span className="contador">{contador}</span>
-        <button
-          type="button"
-          className="contador-boton"
-          onClick={incrementar}
-          aria-label="Incrementar"
-        >
-          +
-        </button>
-      </div>
+    <div className="contador-box">
+      <span className="contador">{contador}</span>
+      <button
+        type="button"
+        className="contador-boton"
+        onClick={incrementar}
+        aria-label="Incrementar"
+      >
+        +
+      </button>
     </div>
   )
 }
@@ -32,9 +32,20 @@ const Contador = ({ contador, incrementar }: ContadorPayload) => {
 export const AppContador = () => {
   const [counter, setCounter] = useState(0)
 
-  const increment = useCallback(() => {
+  // A propósito SIN useCallback (ejercicio: agregalo a mano y probá este
+  // ejemplo con `pnpm dev:sin-compiler` para verlo en acción).
+  // Igual se usa la forma funcional de setCounter para no leer un valor
+  // desactualizado del contador (closure).
+  const increment = () => {
     setCounter((prevCounter) => prevCounter + 1)
-  }, [])
+  }
 
-  return <Contador contador={counter} incrementar={increment} />
+  return (
+    <div className="contador-page">
+      <h1 className="contador-title">Contador - useCallback</h1>
+      <RenderBadge label="Padre" />
+      <CompilerBadge />
+      <Contador contador={counter} incrementar={increment} />
+    </div>
+  )
 }

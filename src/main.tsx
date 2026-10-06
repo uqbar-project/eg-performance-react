@@ -3,8 +3,10 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AppContador } from './components/contador.tsx'
-import { DemoCallback } from './components/ejemploUseCallback.tsx'
+import { Docentes } from './components/docentes.tsx'
 import { AppLayout } from './components/layout.tsx'
+import { ListaPesada } from './components/listaPesada.tsx'
+import { PropsInestables } from './components/propsInestables.tsx'
 import { TodoList } from './components/todoList.tsx'
 
 const router = createBrowserRouter([
@@ -16,12 +18,20 @@ const router = createBrowserRouter([
         element: <TodoList />,
       },
       {
-        path: '/callback',
-        element: <DemoCallback />,
+        path: '/docentes',
+        element: <Docentes />,
       },
       {
         path: '/contador',
         element: <AppContador />,
+      },
+      {
+        path: '/lista',
+        element: <ListaPesada />,
+      },
+      {
+        path: '/props',
+        element: <PropsInestables />,
       },
     ],
   },
