@@ -2,6 +2,8 @@
 
 [![Build React App](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml/badge.svg)](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml)
 
+PENDIENTE: Revisar React Compiler
+
 ## TODO List
 
 Este ejemplo permite mostrar
@@ -246,29 +248,32 @@ El [React Compiler](https://react.dev/learn/react-compiler) (v1.0 estable desde 
 - Cuando tenés un bottleneck medido con el profiler, seguís necesitando `useMemo`/`useCallback` como escape hatch explícito.
 - El compilador tiene que poder analizar el código estáticamente; patrones muy dinámicos pueden quedar fuera de su alcance.
 
-### Activación (opcional)
+### Cómo está configurado este proyecto
 
-Para habilitarlo en este proyecto con Vite:
+Decisiones tomadas:
 
-```bash
-pnpm add -D @vitejs/plugin-react babel-plugin-react-compiler
-```
-
-Y en `vite.config.ts`:
+- Usamos **Babel en lugar de SWC**, porque React Compiler es un plugin de Babel y no corre sobre SWC.
+- El Compiler se aplica con `reactCompilerPreset()` en `vite.config.ts`, antes del plugin de React. Ese orden es necesario para que el Compiler analice el código original.
 
 ```ts
-import react from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler']],
-      },
+    babel({
+      include: /\.[jt]sx?$/,
+      presets: [reactCompilerPreset()],
     }),
+    react(),
   ],
 })
 ```
+
+Para verificar que el Compiler está activo: correr `pnpm dev`, abrir React DevTools y buscar el badge Memo ✨ en los componentes.
+
+**Para comparar con/sin Compiler en clase:** comentar el bloque `babel({...})` en `vite.config.ts`, reiniciar `pnpm dev` y repetir el experimento. Las variantes `-manual` (con `memo`/`useCallback`) mantienen su comportamiento, las variantes `-compiler` (sin hooks) pierden la memoización.
 
 > El compilador no reemplaza la comprensión de los conceptos: seguís necesitando saber qué es una key inmutable, cómo funcionan los closures y por qué una referencia inestable puede causar re-renders innecesarios. Este ejemplo enseña exactamente eso.
 

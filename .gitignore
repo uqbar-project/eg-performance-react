@@ -28,3 +28,6 @@ dist-ssr
 
 # Coverage report
 coverage/
+
+# Planes de trabajo locales (no versionar)
+plans/
