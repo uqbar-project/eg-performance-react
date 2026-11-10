@@ -20,41 +20,15 @@ const priorityLevel = (value: number) => {
 
 type KeyMode = 'id' | 'index' | 'const'
 
-// Simula una operación sincrónica costosa (bloquea el event loop).
-// Está encapsulada para poder reemplazarla por trabajo real
-// (ordenar N elementos, parsear un payload grande, etc.).
-const ITERACIONES_SIMULADAS = 2000000000
-
-const simulateHeavyOperation = () => {
-  let iteracion = 0
-  while (iteracion < ITERACIONES_SIMULADAS) {
-    iteracion++
-  }
-}
-
 export const TodoList = () => {
-  console.info('renderizando master')
   const [todoList, setTodoList] = useState<TodoItem[]>(baseTodoList)
   const [description, setDescription] = useState('')
   const [length, setLength] = useState(0)
   const [keyMode, setKeyMode] = useState<KeyMode>('id')
-  const [simulateHeavy, setSimulateHeavy] = useState(true)
 
   useEffect(() => {
-    if (simulateHeavy) {
-      simulateHeavyOperation()
-    }
     setLength(todoList.length)
-
-    // Alternativa asincrónica: no congela la UI, pero el dato tarda en
-    // reflejarse. Vive acá (y no dentro de simulateHeavyOperation) porque
-    // necesita acceso al estado del componente (todoList, setLength).
-    // fetch('https://httpbin.org/delay/5')
-    //   .then(response => response.json())
-    //   .then(_data => {
-    //     setLength(todoList.length)
-    //   })
-  }, [todoList, simulateHeavy])
+  }, [todoList])
 
   const addTodoItem = () => {
     const newItem = new TodoItem(description, priority())
@@ -114,14 +88,6 @@ export const TodoList = () => {
               <option value="const">constante 1</option>
             </select>
           </label>
-          <label className="todo-option">
-            <input
-              type="checkbox"
-              checked={simulateHeavy}
-              onChange={(event) => setSimulateHeavy(event.target.checked)}
-            />
-            Simular cálculo pesado en useEffect
-          </label>
         </div>
 
         <div className="todo-table">
@@ -168,7 +134,6 @@ export const TodoItemRow = ({
   changeDescription,
   deleteItem,
 }: TodoItemRowPayload) => {
-  console.info(`renderizando ${todoItem.id}`)
   const [selected, setSelected] = useState(false)
 
   return (

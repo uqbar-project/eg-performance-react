@@ -2,6 +2,23 @@
 
 [![Build React App](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml/badge.svg)](https://github.com/uqbar-project/eg-performance-react/actions/workflows/build.yml)
 
+## Mapa de ejemplos
+
+| Ruta | Título | Concepto | Solución manual (líneas `MANUAL` en el código) |
+|---|---|---|---|
+| `/` | TodoList - keys y useEffect | keys estables, estado derivado | — (el ejemplo *es* el anti-patrón) |
+| `/docentes` | Docentes - memo | `memo` + referencia estable | `memo` + `useCallback` |
+| `/contador` | Contador - useCallback | closures desactualizados, `useCallback` con dependencias | `useCallback` con forma funcional de `setState` |
+| `/lista` | Lista pesada - useMemo | cómputo costoso, `useMemo`, `useDeferredValue`, fetch con cleanup | `useMemo` |
+| `/props` | Props inestables - memo | props inline que rompen `memo` | `useMemo` + `useCallback` |
+
+Todos los ejemplos están escritos sin los hooks de memoización a propósito (salvo que se activen las líneas `MANUAL` en clase), y cada página muestra si el bundle actual corre con el Compiler ON u OFF. Para cambiar de modo:
+
+```bash
+pnpm dev              # con Compiler
+pnpm dev:sin-compiler # sin Compiler
+```
+
 ## TODO List
 
 Este ejemplo permite mostrar
@@ -16,93 +33,16 @@ Para eso tenemos una lista de cosas pendientes o TODO list, donde
 - o podemos editar la lista de tareas pendientes
 - también podemos seleccionar varias tareas pendientes, lo que provoca que se visualice de manera diferente dicho elemento en la lista
 
-## Mapa de ejemplos
-
-| Ruta | Título | Concepto | Solución manual (líneas `MANUAL` en el código) |
-|---|---|---|---|
-| `/` | TodoList - keys y useEffect | keys estables, estado derivado, efecto bloqueante | — (el ejemplo *es* el anti-patrón) |
-| `/docentes` | Docentes - memo | `memo` + referencia estable | `memo` + `useCallback` |
-| `/contador` | Contador - useCallback | closures desactualizados, `useCallback` con dependencias | `useCallback` con forma funcional de `setState` |
-| `/lista` | Lista pesada - useMemo | cómputo costoso, `useMemo`, `useDeferredValue`, fetch con cleanup | `useMemo` |
-| `/props` | Props inestables - memo | props inline que rompen `memo` | `useMemo` + `useCallback` |
-
-Todos los ejemplos están escritos sin los hooks de memoización a propósito (salvo que se activen las líneas `MANUAL` en clase), y cada página muestra si el bundle actual corre con el Compiler ON u OFF. Para cambiar de modo:
-
-```bash
-pnpm dev              # con Compiler
-pnpm dev:sin-compiler # sin Compiler
-```
-
-## Keys
+### Keys
 
 Arriba de la lista hay un selector para elegir la key de cada fila:
 
-- `id (estable)`: cada tarea usa su identificador único
-- `índice`: se usa la posición en la lista
-- `constante 1`: todas las filas comparten la misma key
+- `id (estable)`: cada tarea usa su identificador único. Si nosotros seleccionamos el tercer elemento y eliminamos un elemento anterior, **la selección no se pierde ni se pasa a otro elemento**. Funciona perfectamente.
+- `índice`: se usa la posición en la lista, algo que puede cambiar al eliminar o insertarse elementos que están antes que el nuestro. Con la misma prueba, **al seleccionar el segundo elemento y eliminar el primero, la selección pasa al elemento siguiente**.
 
-Con las dos últimas variantes vemos que React conserva la referencia por cosas que no se mantienen fijas para el mismo elemento. Como consecuencia, si nosotros seleccionamos los elementos que están en la posición 2 y la 4 respectivamente, y eliminamos un elemento, el estado seleccionado pasa a los elementos que originalmente estaban en las posiciones 3 y 5, pero que ahora al tener un elemento menos son los que pasan a estar en las posiciones 2 y 4:
+<img src="./videos/performance-react-todo-list-index.gif" alt="todoList por indice confunde elementos" height="auto" width="600px">
 
-![confusión en el estado de los elementos hijos](./videos/usandoIndexSeConfundeHijos.gif)
-
-Esta confusión se resuelve cuando utilizamos la variante que utiliza el id de la tarea como key.
-
-## Performance
-
-Como hemos visto anteriormente, no hay una razón de peso para trabajar con el hook `useEffect` a excepción de cuando queremos obtener información en el momento en el que inicializamos nuestra página.
-
-A veces, sin embargo, nos puede parecer una buena idea aprovechar el `useEffect` para asociarlo a un cambio de estado e ir a buscar información a nuestra fuente de verdad (_source of truth_), operación que suele ser asincrónica porque se sale de la VM donde está la UI.
-
-Vamos a proponer un cambio didáctico, donde queremos mostrar la cantidad de elementos al comienzo de la lista. Lo razonable sería aprovechar el estado `todoList` y escribir algo como
-
-```tsx
-  return <div className="page">
-      <span>{todoList.length} elementos</span>
-```
-
-Sin embargo, una persona no tan experimentada podría querer definir otro state, algo como:
-
-```ts
-  const [length, setLength] = useState(0)
-```
-
-y luego mediante un useEffect calcular el valor cuando se actualice la lista:
-
-```ts
-  useEffect(() => {
-    setLength(todoList.length)
-  }, [todoList])
-```
-
-Por supuesto que no tiene sentido definir un estado si es calculable, pero el ejemplo es didáctico y además hay 3 lugares donde actualizamos la lista: al agregar un elemento, al modificarlo o al eliminarlo (podríamos unificar todo en una función común que genere el nuevo estado y actualizar allí la longitud, pero queremos ir por el otro camino para mostrar lo que puede pasar con la performance).
-
-Ahora bien, ¿qué pasa si la operación del hook useEffect tarda? Hay un checkbox "Simular cálculo pesado en useEffect" (activado por defecto) que ejecuta ese bloqueo. Empezamos a notar lentitud para trabajar en nuestra app, porque cada vez que escribimos en algún input se está renderizando toda la lista nuevamente:
-
-```ts
-  useEffect(() => {
-    let i = 0
-    while (i < 2000000000) i++
-    setLength(todoList.length)
-  }, [todoList])
-```
-
-Ok podrán decir, ésto ocurre porque estás bloqueando el event loop de la UI. Duro pero justo, cambiemos a esta otra variante, donde vamos a buscar un artículo en Medium y al terminar actualizamos el state `length`:
-
-```ts
-  useEffect(() => {
-    fetch('https://httpbin.org/delay/5')
-      .then(response => response.json())
-      .then(_data => {
-        setLength(todoList.length)
-      })
-  }, [todoList])
-```
-
-Como resultado la cantidad de elementos tarda en reflejarse. Esto es esperable, y si la operación de fetch trae información que produce un efecto y por ende un nuevo render del componente, tendré que ver la forma de comunicarlo al usuario: una animación, un pequeño spinner en el div que muestra la cantidad, etc.
-
-![useEffect con fetch](./videos/useEffectConRetardo.gif)
-
-> Detalle: al editar o eliminar una tarea, la lista se actualiza de forma inmutable (se crea una lista nueva con `map`/`filter`, sin modificar el objeto original). Mutar el estado directamente (`todoItem.description = ...`) rompe la forma en que React —y en particular el React Compiler— detecta los cambios, así que evitamos ese patrón.
+- `constante 1`: todas las filas comparten la misma key. En ese caso React no puede asociar un elemento del DOM con su propio mapa, y nos lo hace saber con un error en la consola: 'Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version'. El resultado de seleccionar el segundo elemento y borrar el primero es similar al caso con índice.
 
 ## Docentes - memo
 
