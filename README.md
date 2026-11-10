@@ -40,9 +40,11 @@ Arriba de la lista hay un selector para elegir la key de cada fila:
 - `id (estable)`: cada tarea usa su identificador único. Si nosotros seleccionamos el tercer elemento y eliminamos un elemento anterior, **la selección no se pierde ni se pasa a otro elemento**. Funciona perfectamente.
 - `índice`: se usa la posición en la lista, algo que puede cambiar al eliminar o insertarse elementos que están antes que el nuestro. Con la misma prueba, **al seleccionar el segundo elemento y eliminar el primero, la selección pasa al elemento siguiente**.
 
-<img src="./videos/performance-react-todo-list-index.gif" alt="todoList por indice confunde elementos" height="auto" width="600px">
+<img src="./videos/todo-list-index.gif" alt="todoList por indice confunde elementos" height="auto" width="600px">
 
 - `constante 1`: todas las filas comparten la misma key. En ese caso React no puede asociar un elemento del DOM con su propio mapa, y nos lo hace saber con un error en la consola: 'Encountered two children with the same key, `1`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version'. El resultado de seleccionar el segundo elemento y borrar el primero es similar al caso con índice.
+
+## Hooks nuevos: useMemo / useCallback
 
 ## Docentes - memo
 
@@ -52,9 +54,20 @@ La página tiene la siguiente distribución:
 - un input que permite hacer una búsqueda
 - y la lista de docentes de la materia
 
-![ejemplo docentes](./images/ejemploDocentes.png)
+<img src="./images/ejemplo-docentes.png" alt="Ejemplo docentes" height="auto" width="500px">
 
-Un detalle interesante es que el input de búsqueda está en un componente aparte, porque queremos reutilizarlo en otro lugar. Y a propósito está escrito **sin** `memo` ni `useCallback`. La solución manual está lista en el código en líneas marcadas `MANUAL`, para descomentar en clase:
+El input de búsqueda está en un componente aparte, porque queremos reutilizarlo en otro lugar. Recibe como props una función que es invocada cuando el usuario escribe algo en el input de búsqueda. El tema es que cada vez que el usuario presiona una tecla
+
+- se dispara el evento onchange que ejecuta la función onChange que recibe Search...
+- ...que mapea con la función handleSearch enviada por el componente padre Docentes...
+- ...que produce una mutación (setDocentes) con lo que se produce un re-render de Docentes...
+- ...pero también del componente hijo Search **a pesar de que no cambió nada**: la función handleSearch sigue siendo igual pero se crea nuevamente con cada render
+
+Vemos el console.log disparado desde Search:
+
+![docentes sin memo ni callback](./videos/docentes-sin-memo-ni-callback.gif)
+
+La solución manual está lista en el código en líneas marcadas `MANUAL`, para descomentar en clase, activando [memo](https://react.dev/reference/react/memo) y el hook [useCallback](https://react.dev/reference/react/useCallback):
 
 ```tsx
 const SearchBase = ({ onChange }: SearchPayload) => {
@@ -79,6 +92,10 @@ export const Docentes = () => {
 }
 ```
 
+Ahora sí no hay console.logs, el componente Search no vuelve a necesitar renderizarse.
+
+![docentes con memo y callback](./videos/docentes-con-memo-y-callback.gif)
+
 ### ¿Por qué `onChange` debe cachearse? ¿El `memo` es necesario?
 
 `memo` y `useCallback` son un par inseparable, cada uno cumple un rol distinto:
@@ -95,21 +112,11 @@ Uno sin el otro no funciona:
 
 Como el filtro solo depende del valor ingresado (desacoplado del estado del componente raíz porque lo pasamos como parámetro), alcanza con crear `handleSearch` una vez y reutilizarla siempre:
 
-![docentes con useCallback, no renderizo más](./videos/docentes_renderizoSearchUseCallback.gif)
-
-La página muestra dos badges: la cantidad de renders del padre y si el Compiler está ON u OFF en este bundle.
-
-**Cómo probarlo en clase:**
-
-1. Con `pnpm dev` (Compiler ON), abrir la consola y presionar Shuffle varias veces: el badge del padre aumenta pero `Search` no se re-renderiza.
-2. Con `pnpm dev:sin-compiler` (Compiler OFF) repetir: ahora `Search` sí se re-renderiza en cada Shuffle (el problema original).
-3. Ejercicio (en modo sin-compiler): activá las dos líneas MANUAL (`memo` + `useCallback`) y verificá que el re-render desaparece. Probá activar solo una de las dos para ver por qué el par es inseparable. Volvé a modo con-compiler: sigue sin re-renderizar, pero ahora los hooks manuales son redundantes.
-
-## ¿Es grave que Search se re-renderice de más?
+### ¿Es grave que Search se re-renderice de más?
 
 Lo primero que queremos decir es que eso no ocasiona ningún problema de performance. Pero si nuestro componente `Search` ejecutara acciones en background, o tuviera algún cálculo intensivo, empezarías a notar esa degradación por estar renderizando innecesariamente cada vez que hay un cambio de estado en el componente padre.
 
-## ¿Entonces es recomendable utilizar useCallback siempre?
+## Ejemplo Contador ¿Entonces es recomendable utilizar useCallback siempre?
 
 No, por lo general **es una mala idea**. `useCallback` cachea la definición de la función. Veamos en la ruta `/contador` este ejemplo, donde el padre define el contador con una función común (sin `useCallback`) y se la pasa al hijo:
 
