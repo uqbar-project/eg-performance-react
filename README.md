@@ -185,18 +185,15 @@ Notar que en el código actual del ejemplo igual se usa la forma funcional `setC
 
 ## Lista pesada - useMemo
 
-Hasta acá todos los re-renders eran baratos: con 7 u 100 elementos, recalcular todo es gratis. En la ruta `/lista` trabajamos con 20.000 docentes con nombres realistas generados con `@faker-js/faker` (con semilla fija para que los datos no cambien entre recargas), donde filtrar y ordenar cuesta de verdad. El encabezado muestra cuántos resultados hay y los milisegundos que tardó el cálculo.
+En la ruta `/lista` trabajamos con 20.000 docentes con nombres generados con `@faker-js/faker` y semilla fija. Ordenarlos es costoso: `ordenarPesado` realiza 20 iteraciones de mezcla y ordenamiento. La lista usa `useMemo` para cachear ese resultado según el sentido del orden (`ascendente`); al escribir en el filtro solo se vuelve a calcular el filtrado, que es liviano.
 
-El ejemplo tiene dos partes, separadas como en una app real:
-
-- **Búsqueda asíncrona simulada**: lo que escribís (`query`) se refleja al instante en el input. La búsqueda se dispara con el valor diferido (`useDeferredValue`) y la "respuesta" llega con ~600 ms de delay vía `setTimeout`, **sin bloquear el hilo de UI**. El `cleanup` del efecto cancela la búsqueda anterior si escribís antes de que responda (si no, una respuesta vieja pisaría a una más nueva). Mientras tanto se muestra "Actualizando lista…".
-- **Transformación costosa en el render**: sobre el resultado llegado se aplica un ordenamiento pesado (20 pasadas sobre miles de elementos). El encabezado muestra los milisegundos que tardó. El botón **"Forzar re-render"** cambia un estado ajeno a la búsqueda y demuestra que ese ordenamiento se recalcula completo aunque nada haya cambiado. La lista visible se recorta a 200 filas a propósito (20.000 nodos DOM congelarían la página por el render en sí, que es otro problema).
+El encabezado muestra la cantidad de resultados y los milisegundos que tardó el ordenamiento. El selector **Orden: A-Z / Z-A** cambia la dependencia de `useMemo` y provoca un nuevo cálculo. La lista renderiza como máximo 200 filas para no confundir el costo del ordenamiento con el de crear 20.000 nodos DOM.
 
 **Cómo probarlo en clase:**
 
-1. Escribí en el filtro: el input responde al instante y la lista llega con delay (sin congelarse).
-2. Presioná "Forzar re-render": mirá los milisegundos del encabezado, el ordenamiento corre entero cada vez.
-3. Ejercicio: activá la línea MANUAL (`useMemo` con `[base]` como dependencia) y repetí: el re-render forzado ahora sale gratis (~0 ms) porque el valor cacheado se reutiliza. Fijate que la dependencia es la respuesta ya llegada (`base`): si dependiera del `query`, el cache se invalidaría en cada tecla.
+1. Escribí en el filtro: la lista se filtra sin repetir el ordenamiento pesado.
+2. Cambiá el orden entre A-Z y Z-A: el sentido cambia y se vuelve a medir el cálculo.
+3. Ejercicio: quitá `useMemo` y ejecutá `ordenarPesado` directamente en el render. Al escribir en el filtro, el ordenamiento se repetirá en cada tecla. Volvé a aplicar `useMemo` con `[ascendente]` como dependencia para evitar esos cálculos innecesarios.
 
 ## Props inestables - memo
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CompilerBadge } from './compilerBadge'
 import './contador.css'
 import { RenderBadge } from './renderBadge'

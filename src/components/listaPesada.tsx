@@ -2,54 +2,40 @@ import { fakerES as faker } from '@faker-js/faker'
 // biome-ignore lint/suspicious/noTsIgnore: el ts-ignore es intencional, expect-error rompería el build al descomentar en clase
 // @ts-ignore: useMemo se usa al descomentar la solución manual en clase
 // biome-ignore lint/correctness/noUnusedImports: idem anterior
-import { useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CompilerBadge } from './compilerBadge'
 import './docentes.css'
 import { RenderBadge } from './renderBadge'
 
-// Semilla fija para que los datos sean siempre los mismos en cada recarga.
 faker.seed(42)
 
 const TOTAL = 20000
 const TOTAL_TEXTO = TOTAL.toLocaleString('es-AR')
 
-// Nombres dispersos y realistas (en español) en lugar de "Juli 1", "Juli 2", ...
-// Además los textos largos y variados hacen que filtrar cueste de verdad.
-// Cada elemento tiene id estable para usarlo como key
-// (los nombres generados pueden repetirse).
 interface DocenteXL {
   id: number
   nombre: string
 }
 
-const allDocentesXL: DocenteXL[] = Array.from({ length: TOTAL }, (_, i) => ({
-  id: i,
+const allDocentesXL: DocenteXL[] = Array.from({ length: TOTAL }, (_, index) => ({
+  id: index,
   nombre: faker.person.fullName(),
 }))
 
-// Latencia simulada de red para que el costo se perciba en clase.
-// A diferencia de una espera activa, el setTimeout NO bloquea el hilo de UI:
-// el input sigue respondiendo mientras la "respuesta" está en camino.
-const LATENCIA_SIMULADA_MS = 600
-
-// Búsqueda rápida (lo que haría el backend): solo filtra, sin ordenar.
-const buscarBase = (query: string): DocenteXL[] => {
-  const criterioNormalizado = query.trim().toLowerCase()
-  return allDocentesXL.filter((docente) =>
-    docente.nombre.toLowerCase().includes(criterioNormalizado)
-  )
-}
-
-// Transformación costosa a propósito: ordena miles de elementos.
-// Las pasadas extra simulan normalizar un payload grande y hacen que el costo
-// se note incluso en máquinas rápidas. Corre en el render (hilo de UI),
-// por eso es lo que `useMemo` evita recalcular.
 const PASADAS = 20
 
-const ordenarPesado = (base: DocenteXL[]): DocenteXL[] =>
+// Actualizamos la función para que reciba el criterio (ascendente)
+// y siga rompiendo la optimización de V8 con el random.
+const ordenarPesado = (base: DocenteXL[], ascendente: boolean): DocenteXL[] =>
   Array.from({ length: PASADAS }).reduce<DocenteXL[]>(
     (ordenado) =>
-      [...ordenado].sort((a, b) => a.nombre.localeCompare(b.nombre)),
+      [...ordenado]
+        .sort(() => Math.random() - 0.5)
+        .sort((docenteA, docenteB) =>
+          ascendente
+            ? docenteA.nombre.localeCompare(docenteB.nombre)
+            : docenteB.nombre.localeCompare(docenteA.nombre)
+        ),
     base
   )
 
@@ -57,34 +43,25 @@ const MAX_VISIBLES = 200
 
 export const ListaPesada = () => {
   const [query, setQuery] = useState('')
-  // Estado ajeno a la búsqueda: solo sirve para forzar re-renders del padre
-  // y mostrar que el ordenamiento se recalcula aunque nada haya cambiado.
-  const [vueltas, setVueltas] = useState(0)
-
-  // `useDeferredValue` estabiliza el tecleo rápido: la búsqueda se dispara
-  // con el valor diferido, no con cada tecla.
-  const deferredQuery = useDeferredValue(query)
-
-  // "Respuesta del backend": llega con delay simulado, sin bloquear el input.
-  // El cleanup cancela la búsqueda anterior si el query cambia antes de que
-  // responda (si no, una respuesta vieja pisaría a una más nueva).
-  const [base, setBase] = useState<DocenteXL[]>(allDocentesXL)
-  const [cargando, setCargando] = useState(false)
-
-  useEffect(() => {
-    setCargando(true)
-    const id = setTimeout(() => {
-      setBase(buscarBase(deferredQuery))
-      setCargando(false)
-    }, LATENCIA_SIMULADA_MS)
-    return () => clearTimeout(id)
-  }, [deferredQuery])
+  const [ascendente, setAscendente] = useState(true)
 
   const t0 = performance.now()
-  const filtrados = ordenarPesado(base)
+
+  // 1. EL CUELLO DE BOTELLA REAL:
+  // Corre sobre los 20.000 elementos. Sin useMemo, el lag de ~80ms 
+  // ocurre en CADA tecla que el usuario presiona en el buscador.
+  const nombresOrdenados = ordenarPesado(allDocentesXL, ascendente)
   // MANUAL (comentá la línea de arriba y descomentá esta en clase):
-  // const filtrados = useMemo(() => ordenarPesado(base), [base])
+  // const nombresOrdenados = useMemo(() => ordenarPesado(allDocentesXL, ascendente), [ascendente])
+  
   const ms = performance.now() - t0
+
+  // 2. EL FILTRO RÁPIDO:
+  // Se hace sobre la lista ya ordenada y es muy ligero.
+  const criterioNormalizado = query.trim().toLowerCase()
+  const filtrados = nombresOrdenados.filter((docente) =>
+    docente.nombre.toLowerCase().includes(criterioNormalizado)
+  )
 
   const visibles = filtrados.slice(0, MAX_VISIBLES)
 
@@ -113,18 +90,17 @@ export const ListaPesada = () => {
           <button
             type="button"
             className="callback-shuffle"
-            onClick={() => setVueltas((v) => v + 1)}
+            onClick={() => setAscendente((ordenAnterior) => !ordenAnterior)}
           >
-            Forzar re-render ({vueltas})
+            Orden: {ascendente ? 'A-Z' : 'Z-A'}
           </button>
         </div>
 
-        {(cargando || query !== deferredQuery) && (
-          <p className="callback-empty">Actualizando lista…</p>
-        )}
-
         <ul className="callback-list">
-          {visibles.map((docente: DocenteXL) => (
+          {visibles.length === 0 && (
+            <li className="callback-empty">Sin resultados</li>
+          )}
+          {visibles.map((docente) => (
             <li key={docente.id} className="callback-item">
               {docente.nombre}
             </li>
