@@ -17,10 +17,13 @@ interface DocenteXL {
   nombre: string
 }
 
-const allDocentesXL: DocenteXL[] = Array.from({ length: TOTAL }, (_, index) => ({
-  id: index,
-  nombre: faker.person.fullName(),
-}))
+const allDocentesXL: DocenteXL[] = Array.from(
+  { length: TOTAL },
+  (_, index) => ({
+    id: index,
+    nombre: faker.person.fullName(),
+  })
+)
 
 const PASADAS = 20
 
@@ -48,12 +51,12 @@ export const ListaPesada = () => {
   const t0 = performance.now()
 
   // 1. EL CUELLO DE BOTELLA REAL:
-  // Corre sobre los 20.000 elementos. Sin useMemo, el lag de ~80ms 
+  // Corre sobre los 20.000 elementos. Sin useMemo, el lag de ~80ms
   // ocurre en CADA tecla que el usuario presiona en el buscador.
   const nombresOrdenados = ordenarPesado(allDocentesXL, ascendente)
   // MANUAL (comentá la línea de arriba y descomentá esta en clase):
   // const nombresOrdenados = useMemo(() => ordenarPesado(allDocentesXL, ascendente), [ascendente])
-  
+
   const ms = performance.now() - t0
 
   // 2. EL FILTRO RÁPIDO:
