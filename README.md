@@ -123,7 +123,7 @@ No, por lo general **es una mala idea**. `useCallback` cachea la definición de 
 ```tsx
 export const AppContador = () => {
   const [counter, setCounter] = useState(0)
-  const increment = () => { setCounter((prevCounter) => prevCounter + 1) }
+  const increment = () => { setCounter(counter + 1) }
   return (
     <Contador contador={counter} incrementar={increment} />
   )
@@ -132,11 +132,9 @@ export const AppContador = () => {
 
 El hijo tiene un `useEffect` que avisa cada vez que recibe una función nueva. Con `pnpm dev` (Compiler ON) ese aviso no aparece al incrementar: la referencia se estabiliza sola. Con `pnpm dev:sin-compiler` el aviso reaparece en cada click (el problema original).
 
-Ejercicio: en modo sin-compiler, envolvé `increment` con `useCallback` a mano. Pero cuidado con las dos trampas clásicas que muestra este ejemplo:
+Ejercicio: en modo sin-compiler, cuando hago click en el botón, eso llama a la función del componente padre que cambia el estado, genera una nueva función `increment`. El `useEffect` puesto en el hijo nos avisa que recibió una función nueva:
 
-Lo primero que ocurre es esperable: cuando hago click en el botón, eso llama a la función del componente padre que cambia el estado, genera una nueva función `increment`. El `useEffect` puesto en el hijo nos avisa que recibió una función nueva:
-
-![nueva fn cada vez que incremento el contador](./videos/contador_incrementarSinUseCallback.gif)
+![nueva fn cada vez que incremento el contador](./videos/contador-01-sin-use-callback.gif)
 
 El riesgo está en que al recibir una nueva función eso estuviera asociado a
 
@@ -165,21 +163,21 @@ Ok, podríamos pensar entonces en sacar esa dependencia:
 
 Lejos de arreglar el problema, generamos uno nuevo: ahora la función solo incrementa el contador la primera vez:
 
-![se incrementa la función una sola vez](./videos/contador_incrementarUnaSolaVez.gif)
+![se incrementa la función una sola vez](./videos/contador-02-con-use-callback-mal.gif)
 
 Vemos no obstante que no se dispara un `console.info` lo que marca que no estamos generando nuevas funciones, pero la función `increment` está atada al valor del contador en el momento de crearse la primera vez (`counter` es 0). La solución es utilizar `setCounter` tomando el valor previo:
 
 ```ts
   const increment = useCallback(() => {
-    setCounter(prevCounter => prevCounter + 1)
+    setCounter((prevCounter) => prevCounter + 1)
   }, [])
 ```
 
 Ahora sí, no generamos nuevas instancias de la función `increment` y el contador funciona correctamente:
 
-![useCallback correcto](./videos/contador_useCallbackSinGenerarFn.gif)
+![useCallback correcto](./videos/contador-03-con-use-callback-ok.gif)
 
-Notar que en el código actual del ejemplo igual se usa la forma funcional `setCounter(prev => ...)` para no leer un valor desactualizado del contador, con o sin Compiler.
+Notar que en el código actual del ejemplo igual se usa la forma funcional `setCounter((prevCounter) => ...)` para no leer un valor desactualizado del contador, con o sin Compiler.
 
 ## La conclusión
 
